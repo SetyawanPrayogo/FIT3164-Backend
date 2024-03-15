@@ -32,10 +32,15 @@ def main():
     final_df['Summary'] = final_df.apply(generate_summary, args=(sales_train,calendar,), axis=1)
     
     """
-    Create Price Count Dataset for Each Product in each year
+    Create Price Dataset and add Base Price for Each Product in each year
     """
     price = sell_prices.copy(deep=True)
     price = pd.DataFrame(price[['store_id', 'item_id']].drop_duplicates().reset_index(drop=True))
+    price['Base Price'] = price.apply(generate_base_price, args=(sell_prices,), axis=1)
+    
+    """
+    Add Price Count for Each Product in each year
+    """
     price['Price Count'] = price.apply(generate_price_count, args=(sell_prices,), axis=1)
     
     return final_df, price
@@ -177,9 +182,37 @@ def generate_summary(row, sales_train, calendar):
     # print(summary)
     return summary
 
+def generate_base_price(row, sell_prices):
+    """
+    Function description: **Get base price on each year (max price on each year)
+    :Input:
+
+    :Output:
+
+    """
+    base_price = {year: [] for year in range(2011, 2017)} # Create dictionary from 2011 to 2016
+    
+    data = sell_prices[(sell_prices['store_id'] == row['store_id']) & (sell_prices['item_id'] == row['item_id'])]
+    
+    # Put all of the price in each year
+    for _, item in data.iterrows():
+        start_year, end_year = get_start_end_year(item)
+        num_years = len(range(start_year, end_year + 1))
+        
+        curr_price = str(item['sell_price'])
+        for year in range(start_year, end_year+1):
+            base_price[year].append(curr_price)
+    
+    # Get the base price
+    for year, price in base_price.items():
+        max_price = max(price) if price else 0
+        base_price[year] = float(max_price)
+    
+    return base_price
+
 def generate_price_count(row, sell_prices):
     """
-    Function description: **Get start year and end year
+    Function description: **Get price count on each year
     :Input:
 
     :Output:
@@ -188,9 +221,8 @@ def generate_price_count(row, sell_prices):
     price_count = {year: 0 for year in range(2011, 2017)} # Create dictionary from 2011 to 2016
     
     data = sell_prices[(sell_prices['store_id'] == row['store_id']) & (sell_prices['item_id'] == row['item_id'])]
-    
-    for index, item in data.iterrows():
-        # Assuming you have a column 'start_date' and 'end_date' in your 'sell_prices' DataFrame
+
+    for _, item in data.iterrows():
         start_year, end_year = get_start_end_year(item)
         
         # Increment count for each year between start_year and end_year
@@ -202,7 +234,7 @@ def generate_price_count(row, sell_prices):
 
 if __name__ == '__main__':
     final_df, price = main()
-    # print(final_df.shape) # (108547, 9)
-    # print(price.shape) # (30490, 3)
+    print(final_df.shape) # (108547, 9)
+    print(price.shape) # (30490, 4)
     final_df.to_csv("sales.csv", index=False)
     price.to_csv("price.csv", index=False)
