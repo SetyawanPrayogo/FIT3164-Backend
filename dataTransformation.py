@@ -234,7 +234,7 @@ def generate_price_count(row, sell_prices):
 
 if __name__ == '__main__':
     final_df, price = main()
-    print(final_df.shape) # (108547, 9)
-    print(price.shape) # (30490, 4)
+    # print(final_df.shape) # (108547, 9)
+    # print(price.shape) # (30490, 4)
     final_df.to_csv("sales.csv", index=False)
     price.to_csv("price.csv", index=False)
