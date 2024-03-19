@@ -35,7 +35,7 @@ def main():
     Create Price Dataset and add Base Price for Each Product in each year
     """
     price = sell_prices.copy(deep=True)
-    price = pd.DataFrame(price[['store_id', 'item_id']].drop_duplicates().reset_index(drop=True))
+    price = pd.DataFrame(price[['state_id', 'store_id', 'cat_id', 'dept_id', 'item_id']].drop_duplicates().reset_index(drop=True))
     price['Base Price'] = price.apply(generate_base_price, args=(sell_prices,), axis=1)
     
     """
@@ -82,9 +82,18 @@ def clean_sell_prices(sell_prices, start_date):
     sell_prices.loc[sell_prices['end_d_num'].isna(), 'end_d_num'] = 1941
     # Bring back the format of "d_{number}"
     sell_prices['end_d'] = 'd_' + sell_prices['end_d_num'].astype(int).astype(str)
+    
+    # state_id
+    sell_prices['state_id'] = sell_prices['store_id'].str.split('_').str[0]
 
+    # dept_id
+    sell_prices['dept_id'] = sell_prices['item_id'].str.extract(r'([^_]*_[^_]*)')
+    
+    # cat_id
+    sell_prices['cat_id'] = sell_prices['item_id'].str.split('_').str[0]
+    
     # Reorder column and remove 'wm_yr_wk'
-    sell_prices = sell_prices[['store_id', 'item_id', 'start_date', 'end_date', 'start_d', 'end_d', 'sell_price', 'price_change']]
+    sell_prices = sell_prices[['state_id', 'store_id', 'cat_id', 'dept_id', 'item_id', 'start_date', 'end_date', 'start_d', 'end_d', 'sell_price', 'price_change']]
     return sell_prices
 
 def get_start_end_year(row):
@@ -234,7 +243,7 @@ def generate_price_count(row, sell_prices):
 
 if __name__ == '__main__':
     final_df, price = main()
-    # print(final_df.shape) # (108547, 9)
-    # print(price.shape) # (30490, 4)
+    # print(final_df.shape) # (108547, 12)
+    # print(price.shape) # (30490, 7)
     final_df.to_csv("sales.csv", index=False)
     price.to_csv("price.csv", index=False)
