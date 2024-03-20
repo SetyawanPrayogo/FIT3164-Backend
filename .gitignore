@@ -1,3 +1,5 @@
 dataset/
 price.csv
 sales.csv
+__pycache__/
+
