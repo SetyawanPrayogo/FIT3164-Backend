@@ -5,8 +5,8 @@ from selectLevel import levelSelection
 __author__ = "Hamid Abrar Mahir (32226136), Setyawan Prayogo (32213816), Yuan She (32678304), Regina Lim (32023863)"
 
 def createModel(salesDF, priceDF, year: int, store_id: str, item_id: str):
-    productPriceInfo = priceDF[(priceDF['store_id'] == store_id) & (priceDF['item_id'] == item_id)]
-    productSalesInfo = salesDF[(salesDF['item_id'] == item_id) & (salesDF['store_id'] == store_id)]
+    productPriceInfo = priceDF[(priceDF['store_id'] == store_id) & (priceDF['item_id'] == item_id)].reset_index()
+    productSalesInfo = salesDF[(salesDF['item_id'] == item_id) & (salesDF['store_id'] == store_id)].reset_index()
     # print(productPriceInfo)
     print(productSalesInfo)
     
@@ -17,31 +17,21 @@ def createModel(salesDF, priceDF, year: int, store_id: str, item_id: str):
     level = levelSelection(priceDF, year, store_id, item_id)
     print(level)
     
-    base_price = productPriceInfo['Base Price'].iloc[0][year-1]
+    base_price = productPriceInfo['Base Price'][0][year-1]
     print("base price: ")
     print(base_price)
 
-    # Extract the year from the start_date column and convert it to an integer
-    productSalesInfo['start_year'] = productSalesInfo['start_date'].str[:4].astype(int)
+    base_price_row = productSalesInfo[(productSalesInfo['sell_price'] == base_price) & (productSalesInfo['start_date'].dt.year == year - 1)].reset_index()
+    print(base_price_row)
 
-    # Filter the DataFrame based on the condition
-    previous_year_data = productSalesInfo[productSalesInfo['start_year'] == year - 1]
-    print("previous_year_data:")
-    print(previous_year_data)
-
-    # Find rows with maximum sell_price
-    max_sell_price_rows = previous_year_data[previous_year_data['sell_price'] == base_price].reset_index()
-    print("rows with max sell_price:")
-    print(max_sell_price_rows)
-
-    if len(max_sell_price_rows) == 1:
-        base_demand = max_sell_price_rows['Summary'][0][year-1]['avg_sold_wk']
+    if len(base_price_row) == 1:
+        base_demand = base_price_row['Summary'][0][year-1]['avg_sold_wk']
         print("base demand: ")
         print(base_demand)
     else:
-        base_demand = max_sell_price_rows['Summary'][0][year-1]['avg_sold_wk']
-        for i in range(1,len(max_sell_price_rows)):
-            current_base_demand = max_sell_price_rows['Summary'][i][year-1]['avg_sold_wk']
+        base_demand = base_price_row['Summary'][0][year-1]['avg_sold_wk']
+        for i in range(1,len(base_price_row)):
+            current_base_demand = base_price_row['Summary'][i][year-1]['avg_sold_wk']
             if current_base_demand < base_demand:
                 base_demand = current_base_demand
         print(base_demand)
@@ -57,8 +47,11 @@ if __name__ == '__main__':
     priceDF['Base Price'] = priceDF['Base Price'].apply(ast.literal_eval)
     priceDF['Price Count'] = priceDF['Price Count'].apply(ast.literal_eval)
     
-    year = 2013
+    salesDF['start_date'] = pd.to_datetime(salesDF['start_date'])
+    salesDF['end_date'] = pd.to_datetime(salesDF['end_date'])
+    
+    year = 2015
     store_id = "CA_1"
-    item_id = "FOODS_1_010"
+    item_id = "FOODS_1_073"
     
     model = createModel(salesDF, priceDF, year, store_id, item_id)

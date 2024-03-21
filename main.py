@@ -11,6 +11,9 @@ def main():
     priceDF['Base Price'] = priceDF['Base Price'].apply(ast.literal_eval)
     priceDF['Price Count'] = priceDF['Price Count'].apply(ast.literal_eval)
     
+    salesDF['start_date'] = pd.to_datetime(salesDF['start_date'])
+    salesDF['end_date'] = pd.to_datetime(salesDF['end_date'])
+    
     year = 2015
     store_id = "CA_1"
     item_id = "FOODS_1_073"
