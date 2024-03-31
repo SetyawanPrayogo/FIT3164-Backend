@@ -21,7 +21,8 @@ def createModel(salesDF, priceDF, year: int, store_id: str, item_id: str):
     print("base price: ")
     print(base_price)
 
-    base_price_row = productSalesInfo[(productSalesInfo['sell_price'] == base_price) & (productSalesInfo['start_date'].dt.year == year - 1)].reset_index()
+    base_price_row = productSalesInfo[(productSalesInfo['sell_price'] == base_price) & (productSalesInfo['start_date'].dt.year <= year - 1) & 
+                                  (productSalesInfo['end_date'].dt.year >= year - 1)].reset_index()
     print(base_price_row)
 
     if len(base_price_row) == 1:
