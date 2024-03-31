@@ -210,12 +210,12 @@ def generate_base_price(row, sell_prices):
         
         curr_price = str(item['sell_price'])
         for year in range(start_year, end_year+1):
-            base_price[year].append(curr_price)
+            base_price[year].append(float(curr_price))
     
     # Get the base price
     for year, price in base_price.items():
         max_price = max(price) if price else 0
-        base_price[year] = float(max_price)
+        base_price[year] = max_price
     
     return base_price
 
