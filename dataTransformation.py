@@ -206,11 +206,10 @@ def generate_base_price(row, sell_prices):
     # Put all of the price in each year
     for _, item in data.iterrows():
         start_year, end_year = get_start_end_year(item)
-        num_years = len(range(start_year, end_year + 1))
         
-        curr_price = str(item['sell_price'])
+        curr_price = float(item['sell_price'])
         for year in range(start_year, end_year+1):
-            base_price[year].append(float(curr_price))
+            base_price[year].append(curr_price)
     
     # Get the base price
     for year, price in base_price.items():
@@ -243,7 +242,7 @@ def generate_price_count(row, sell_prices):
 
 if __name__ == '__main__':
     final_df, price = main()
-    # print(final_df.shape) # (108547, 12)
-    # print(price.shape) # (30490, 7)
+    print(final_df.shape) # (108547, 12)
+    print(price.shape) # (30490, 7)
     final_df.to_csv("sales.csv", index=False)
     price.to_csv("price.csv", index=False)
