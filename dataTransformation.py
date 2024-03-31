@@ -242,7 +242,7 @@ def generate_price_count(row, sell_prices):
 
 if __name__ == '__main__':
     final_df, price = main()
-    print(final_df.shape) # (108547, 12)
-    print(price.shape) # (30490, 7)
+    # print(final_df.shape) # (108547, 12)
+    # print(price.shape) # (30490, 7)
     final_df.to_csv("sales.csv", index=False)
     price.to_csv("price.csv", index=False)
