@@ -11,7 +11,7 @@ def get_dataset(priceDF, salesDF, year):
     priceDF['id'] = priceDF['item_id'] + '_' + priceDF['store_id']
     
     group_id = filtered_salesDF.groupby(['id'])
-    print(len(filtered_salesDF))
+    # print(len(filtered_salesDF))
     
     result_df = pd.DataFrame()
     for unique_id in filtered_salesDF['id'].unique():
@@ -64,7 +64,22 @@ def get_dataset(priceDF, salesDF, year):
                                                              'demand_percent': demand_percent})])
             
             result_df = result_df._append(new_row, ignore_index=True)
-            #print(result_df)
+    
+    # print(len(result_df))
+    
+    temp_df = result_df[(result_df['demand_change'] == 0) & (result_df['price_diff'] == 0)].copy()
+    temp_df['id'] = temp_df['item_id'] + '_' + temp_df['store_id']
+
+    # print(len(temp_df['id'].unique()))
+    # print(len(temp_df))
+    
+    temp_df = temp_df[~temp_df.duplicated(subset='id', keep='first')]
+    
+    indices_to_remove = temp_df.index
+    result_df = result_df.drop(indices_to_remove)
+    result_df.reset_index(drop=True, inplace=True)
+    
+    # print(len(result_df))
     
     return result_df
 
