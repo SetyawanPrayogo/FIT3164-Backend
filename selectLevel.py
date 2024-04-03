@@ -16,9 +16,9 @@ def levelSelection(priceDF, year: int, store_id: str, item_id: str):
 
         filteredDF = priceDF.query(filter_condition)
                 
-        price_count = filteredDF['Price Count'].apply(lambda x: x[year]).sum()
+        price_count = filteredDF['Price Count'].apply(lambda x: x[year]).apply(lambda x: x - 1 if x != 0 else x).sum()
         
-        if price_count >= 5:
+        if price_count >= 100:
             level = key
             break
     
@@ -49,5 +49,3 @@ def getProductInfo(store_id: str, item_id: str):
 #     item_id = "FOODS_1_001"
     
 #     a = levelSelection(priceDF, year, store_id, item_id)
-    
-    
