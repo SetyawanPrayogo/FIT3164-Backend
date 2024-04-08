@@ -65,7 +65,16 @@ def main():
     store_id = "CA_1"
     item_id = "FOODS_1_073"
     
-    model = priceElasticityModel.createModel(salesDF, priceDF, year, store_id, item_id)
+    # To show in the Front-end
+    base_price, base_demand = priceElasticityModel.getBase(salesDF, priceDF, year, store_id, item_id)
+    
+    # Not gonna show on UI
+    poly, model, rmse = priceElasticityModel.createModel(salesDF, priceDF, year, store_id, item_id, deg = 3)
+
+    # 60 is the user input (discount)
+    # y_predict is the change on demand (percent)
+    y_predict = priceElasticityModel.predictDemand(poly, model, 60)
+    
     return model
 
 # for testing with frontend, comment the next2 lines
