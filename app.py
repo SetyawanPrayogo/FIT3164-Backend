@@ -8,17 +8,48 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# get all items
-@app.route('/getItems', methods=['GET'])
-def getItems():
-    salesDF = pd.read_csv("sales.csv")
-    items = salesDF['item_id'].unique()
-    return jsonify(items.tolist())
+stores = {
+    'st1Cal': 'CA_1',
+    'st2Cal': 'CA_2',
+    'st3Cal': 'CA_3',
+    'st4Cal': 'CA_4',
+    'st1Tex': 'TX_1',
+    'st2Tex': 'TX_2',
+    'st3Tex': 'TX_3',
+    'st1Win': 'WI_1',
+    'st2Win': 'WI_2',
+    'st3Win': 'WI_3',
+}
+
+salesDF = pd.read_csv("sales.csv")
+priceDF = pd.read_csv("price.csv")
+
+
+# get all items from a store
+# run this in the browser: http://127.0.0.1:5000/get-items/st1Cal . This will return all the items in store 1 in California. Make sure the application is running using flask run
+@app.route('/get-items/<storeId>', methods=['GET'])
+def getItems(storeId):
+    storeId = stores.get(storeId, "Could not find store")
+    print(storeId)
+
+    # only show the unique items in the store
+    items = salesDF[salesDF['store_id'] == storeId]['item_id'].unique()
+    return jsonify(items.tolist())  # Convert items to a list
+
+
+
+@app.route('/getyear', methods=['GET'])
+def get_year(priceDF, store_id: str, item_id: str):
+    productPriceInfo = priceDF[(priceDF['store_id'] == store_id) & (priceDF['item_id'] == item_id)].reset_index()
+    data = productPriceInfo['Price Count'].iloc[0]
+    yearList =  [year for year, count in data.items() if count != 0]
+    yearList.pop(0)
+    return yearList
+
 
 @app.route('/getPriceElasticity', methods=['GET'])
 def main():
-    salesDF = pd.read_csv("sales.csv")
-    priceDF = pd.read_csv("price.csv")
+
     
     salesDF['Summary'] = salesDF['Summary'].apply(ast.literal_eval)
     priceDF['Base Price'] = priceDF['Base Price'].apply(ast.literal_eval)
