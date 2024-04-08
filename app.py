@@ -25,6 +25,12 @@ stores = {
 salesDF = pd.read_csv("sales.csv")
 priceDF = pd.read_csv("price.csv")
 
+salesDF['Summary'] = salesDF['Summary'].apply(ast.literal_eval)
+priceDF['Base Price'] = priceDF['Base Price'].apply(ast.literal_eval)
+priceDF['Price Count'] = priceDF['Price Count'].apply(ast.literal_eval)
+
+salesDF['start_date'] = pd.to_datetime(salesDF['start_date'])
+salesDF['end_date'] = pd.to_datetime(salesDF['end_date'])
 
 # get all items from a store
 # run this in the browser: http://127.0.0.1:5000/get-items/st1Cal . This will return all the items in store 1 in California. Make sure the application is running using flask run
@@ -48,25 +54,13 @@ def get_year():
     storeId = stores.get(store_id, "Could not find store")
     productPriceInfo = priceDF[(priceDF['store_id'] == storeId) & (priceDF['item_id'] == item_id)].reset_index()
     data = productPriceInfo['Price Count'].iloc[0]
-    # data is printed to be this "{2011: 1, 2012: 2, 2013: 1, 2014: 1, 2015: 1, 2016: 1}"
-    # we need to convert this to a dictionary
-    data_dict = ast.literal_eval(data)
-    yearList =  [year for year, count in data_dict.items() if count != 0]
+    yearList =  [year for year, count in data.items() if count != 0]
     yearList.pop(0)
     return jsonify(yearList)
 
 
 @app.route('/getPriceElasticity', methods=['GET'])
-def main():
-
-    
-    salesDF['Summary'] = salesDF['Summary'].apply(ast.literal_eval)
-    priceDF['Base Price'] = priceDF['Base Price'].apply(ast.literal_eval)
-    priceDF['Price Count'] = priceDF['Price Count'].apply(ast.literal_eval)
-    
-    salesDF['start_date'] = pd.to_datetime(salesDF['start_date'])
-    salesDF['end_date'] = pd.to_datetime(salesDF['end_date'])
-    
+def main():   
     year = 2015
     store_id = "CA_1"
     item_id = "FOODS_1_073"
