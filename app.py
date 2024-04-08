@@ -59,11 +59,22 @@ def get_year():
     return jsonify(yearList)
 
 
-@app.route('/getPriceElasticity', methods=['GET'])
+# Comment this code if you want to work on the backend only. This code will only work with the frontend.
+# http://127.0.0.1:5000/get-price-elasticity?storeId=st1Cal&itemId=FOODS_1_001&yearId=2015
+@app.route('/get-price-elasticity', methods=['GET'])
 def main():   
-    year = 2015
-    store_id = "CA_1"
-    item_id = "FOODS_1_073"
+    store_id = request.args.get('storeId')
+    item_id = request.args.get('itemId')
+    year_id = request.args.get('yearId')
+
+    storeId = stores.get(store_id, "Could not find store")
+
+    year = int(year_id)
+    store_id = storeId
+    item_id = item_id
+
+    print("#############################################")
+    print(year, store_id, item_id)
     
     # To show in the Front-end
     base_price, base_demand = priceElasticityModel.getBase(salesDF, priceDF, year, store_id, item_id)
@@ -75,13 +86,36 @@ def main():
     # y_predict is the change on demand (percent)
     y_predict = priceElasticityModel.predictDemand(poly, model, 60)
     
-    return model
+    print("Printing the results", base_price, base_demand, rmse, y_predict)
+    return {'base_price': base_price, 'base_demand': base_demand, 'rmse': rmse, 'y_predict': y_predict}
 
-# for testing with frontend, comment the next2 lines
+
+
+# Uncomment this code when you want to work on the backend only
+"""
+def main():   
+    print("#############################################")
+
+    year = 2015
+    store_id = 'CA_1'
+    item_id = 'FOODS_1_001'
+    
+    base_price, base_demand = priceElasticityModel.getBase(salesDF, priceDF, year, store_id, item_id)
+    
+    poly, model, rmse = priceElasticityModel.createModel(salesDF, priceDF, year, store_id, item_id, deg = 3)
+
+    y_predict = priceElasticityModel.predictDemand(poly, model, 60)
+    
+    print("Printing the results", base_price, base_demand, rmse, y_predict)
+    return {'base_price': base_price, 'base_demand': base_demand, 'rmse': rmse, 'y_predict': y_predict}
+"""
+
+
+# for testing with frontend
 if __name__ == '__main__':
     app.run(debug=True)
 
 
-# For testing with frontend
-if __name__ == '__main__':
-    main()
+# For testing with backend
+# if __name__ == '__main__':
+#     main()

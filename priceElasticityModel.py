@@ -62,7 +62,9 @@ def createModel(salesDF, priceDF, year: int, store_id: str, item_id: str, deg: i
     plt.xlabel('Price Discount (%)')
     plt.ylabel('Change in Demand (%)')
     plt.legend()
-    plt.show()
+    #* Uncomment the next line if you want to work with backend
+    #* Comment the next line if you want to work with frontend
+    # plt.show()
             
     return poly, poly_reg_model, rmse
 
