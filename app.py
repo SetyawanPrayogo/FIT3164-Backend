@@ -4,6 +4,7 @@ import ast
 import priceElasticityModel
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask import request
 
 app = Flask(__name__)
 CORS(app)
@@ -37,14 +38,22 @@ def getItems(storeId):
     return jsonify(items.tolist())  # Convert items to a list
 
 
-
-@app.route('/getyear', methods=['GET'])
-def get_year(priceDF, store_id: str, item_id: str):
-    productPriceInfo = priceDF[(priceDF['store_id'] == store_id) & (priceDF['item_id'] == item_id)].reset_index()
+# Input argument, storeId and itemId.
+# Outputs all the years that item was sold in that store
+# run this in the browser: http://127.0.0.1:5000/get-year?storeId=st1Cal&itemId=FOODS_1_001
+@app.route('/get-year', methods=['GET'])
+def get_year():
+    store_id = request.args.get('storeId')
+    item_id = request.args.get('itemId')
+    storeId = stores.get(store_id, "Could not find store")
+    productPriceInfo = priceDF[(priceDF['store_id'] == storeId) & (priceDF['item_id'] == item_id)].reset_index()
     data = productPriceInfo['Price Count'].iloc[0]
-    yearList =  [year for year, count in data.items() if count != 0]
+    # data is printed to be this "{2011: 1, 2012: 2, 2013: 1, 2014: 1, 2015: 1, 2016: 1}"
+    # we need to convert this to a dictionary
+    data_dict = ast.literal_eval(data)
+    yearList =  [year for year, count in data_dict.items() if count != 0]
     yearList.pop(0)
-    return yearList
+    return jsonify(yearList)
 
 
 @app.route('/getPriceElasticity', methods=['GET'])
