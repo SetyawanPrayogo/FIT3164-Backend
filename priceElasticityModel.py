@@ -60,6 +60,7 @@ def createModel(salesDF, priceDF, year: int, store_id: str, item_id: str, deg: i
     plt.figure(figsize=(10, 6))
     plt.scatter(x, y, label='Actual Data')
     plt.plot(x_values, y_predicted, c="red", label='Polynomial Regression')
+    plt.title(f"Price Elasticity Analysis for {item_id} in Store {store_id} at {level} Level")
     plt.xlabel('Price Discount (%)')
     plt.ylabel('Change in Demand (%)')
     plt.legend()
