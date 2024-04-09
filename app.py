@@ -1,4 +1,5 @@
 # import dataTransformation
+import boto3
 import pandas as pd
 import ast
 import priceElasticityModel
@@ -22,8 +23,15 @@ stores = {
     'st3Win': 'WI_3',
 }
 
-salesDF = pd.read_csv("sales.csv")
-priceDF = pd.read_csv("price.csv")
+s3 = boto3.resource(
+    service_name='s3',
+    region_name='ap-southeast-2',
+    aws_access_key_id="AKIAW3MEETUBY65DTU7S",
+    aws_secret_access_key="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"
+)
+
+salesDF= pd.read_csv(s3.Bucket(name='fit3164-bucket').Object('sales.csv').get()['Body'])
+priceDF = pd.read_csv(s3.Bucket(name='fit3164-bucket').Object('price.csv').get()['Body'])
 
 salesDF['Summary'] = salesDF['Summary'].apply(ast.literal_eval)
 priceDF['Base Price'] = priceDF['Base Price'].apply(ast.literal_eval)
