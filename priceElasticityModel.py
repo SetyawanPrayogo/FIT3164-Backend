@@ -32,10 +32,11 @@ def createModel(salesDF, priceDF, year: int, store_id: str, item_id: str, deg: i
     
     # filter the data based on the level
     dataModel = filterData(dataModel, productInfo, level)
+    # sort dataModel by price_discount (x axis)
+    dataModel = dataModel.sort_values(by='price_discount')
     # print(dataModel.shape)
     
     x = dataModel['price_discount']
-    x = x.sort_values()
     y = dataModel['demand_percent']
 
     # Generate values 0 to 100 by 0.01
