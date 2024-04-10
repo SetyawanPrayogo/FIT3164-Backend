@@ -1,4 +1,5 @@
 import boto3
+import json
 import pandas as pd
 import ast
 
@@ -80,11 +81,17 @@ def predictDemand(poly, model, discount):
 def getData(year):
     filePath = f"modelData/data_{year}.csv"
     
+    # Get access key
+    credentials = json.load(open('credentials.json'))
+
+    access_key = credentials.get('aws_access_key_id')
+    secret_key = credentials.get('aws_secret_access_key')
+
     s3 = boto3.resource(
         service_name='s3',
         region_name='ap-southeast-2',
-        aws_access_key_id="AKIAW3MEETUBY65DTU7S",
-        aws_secret_access_key="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"
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key
     )
         
     data = pd.read_csv(s3.Bucket(name='fit3164-bucket').Object(filePath).get()['Body'])
@@ -136,11 +143,17 @@ def getBase(salesDF, priceDF, year: int, store_id: str, item_id: str):
     return base_price, base_demand
     
 if __name__ == '__main__':
+    # Get access key
+    credentials = json.load(open('credentials.json'))
+
+    access_key = credentials.get('aws_access_key_id')
+    secret_key = credentials.get('aws_secret_access_key')
+
     s3 = boto3.resource(
         service_name='s3',
         region_name='ap-southeast-2',
-        aws_access_key_id="AKIAW3MEETUBY65DTU7S",
-        aws_secret_access_key="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"
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret_key
     )
 
     salesDF= pd.read_csv(s3.Bucket(name='fit3164-bucket').Object('sales.csv').get()['Body'])
