@@ -81,15 +81,16 @@ def main():
     store_id = request.args.get('storeId')
     item_id = request.args.get('itemId')
     year_id = request.args.get('yearId')
+    dis_Id = request.args.get('disId')
 
     storeId = stores.get(store_id, "Could not find store")
+
 
     year = int(year_id)
     store_id = storeId
     item_id = item_id
-
+    dis_Id = int(dis_Id)
     print("#############################################")
-    print(year, store_id, item_id)
     
     # To show in the Front-end
     base_price, base_demand = priceElasticityModel.getBase(salesDF, priceDF, year, store_id, item_id)
@@ -99,7 +100,7 @@ def main():
 
     # 60 is the user input (discount)
     # y_predict is the change on demand (percent)
-    y_predict = priceElasticityModel.predictDemand(poly, model, 60)
+    y_predict = priceElasticityModel.predictDemand(poly, model, dis_Id)
     
     print("Printing the results", base_price, base_demand, rmse, y_predict)
     return {'base_price': base_price, 'base_demand': base_demand, 'rmse': rmse, 'y_predict': y_predict}
