@@ -72,11 +72,22 @@ def createModel(salesDF, priceDF, year: int, store_id: str, item_id: str, deg: i
             
     return poly, poly_reg_model, rmse
 
-def predictDemand(poly, model, discount):
+def predictDemand(poly, model, base_demand, discount):
     x_predict_poly = poly.fit_transform(np.array(discount).reshape(-1, 1))
     y_predict = model.predict(x_predict_poly)
     
-    return y_predict[0]
+    y_predict[0] = round(y_predict[0], 2)
+    
+    if y_predict[0] == 0:
+        impact = f"No Impact ({y_predict[0]}% change)"
+    elif y_predict[0] > 0:
+        impact = f"Increased by {y_predict[0]}%"
+    elif y_predict[0] < 0:
+        impact = f"Decreased by {abs(y_predict[0])}%"
+        
+    demand = f"{round(base_demand + base_demand * y_predict[0]/100, 2)} Items sold per week"
+    
+    return impact, demand
 
 def getData(year):
     filePath = f"modelData/data_{year}.csv"
@@ -166,12 +177,18 @@ if __name__ == '__main__':
     salesDF['start_date'] = pd.to_datetime(salesDF['start_date'])
     salesDF['end_date'] = pd.to_datetime(salesDF['end_date'])
     
+    # dept_id
     year = 2014
     store_id = "TX_1"
     item_id = "HOUSEHOLD_2_466"
     
     base_price, base_demand = getBase(salesDF, priceDF, year, store_id, item_id)
+    base_price
+    base_demand
     
     poly, model, rmse = createModel(salesDF, priceDF, year, store_id, item_id, deg = 3)
+    plt.show()
 
-    y_predict = predictDemand(poly, model, 60)
+    impact, demand = predictDemand(poly, model, base_demand, 60)
+    impact
+    demand

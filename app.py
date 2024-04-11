@@ -100,10 +100,10 @@ def main():
 
     # 60 is the user input (discount)
     # y_predict is the change on demand (percent)
-    y_predict = priceElasticityModel.predictDemand(poly, model, dis_Id)
+    impact, demand = priceElasticityModel.predictDemand(poly, model, base_demand, dis_Id)
     
-    print("Printing the results", base_price, base_demand, rmse, y_predict)
-    return {'base_price': base_price, 'base_demand': base_demand, 'rmse': rmse, 'y_predict': y_predict}
+    print("Printing the results", base_price, base_demand, rmse, impact, demand)
+    return {'Base Price': base_price, 'Base Demand': base_demand, 'RMSE': rmse, 'Impact on Sales': impact, 'Predicted Demand': demand}
 
 
 
