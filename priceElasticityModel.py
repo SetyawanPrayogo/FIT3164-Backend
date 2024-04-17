@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
 from selectLevel import levelSelection, getProductInfo
 
 __author__ = "Hamid Abrar Mahir (32226136), Setyawan Prayogo (32213816), Yuan She (32678304), Regina Lim (32023863)"
@@ -41,23 +42,27 @@ def createModel(salesDF, priceDF, year: int, store_id: str, item_id: str, deg: i
     x = dataModel['price_discount']
     y = dataModel['demand_percent']
 
+    # Split data into training and test sets
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+    
     # Generate values 0 to 100 by 0.01
     x_values = np.arange(0, 100.01, 0.01)
     
     # Degree ?? - To think
     poly = PolynomialFeatures(degree=deg, include_bias=False)
-    X = poly.fit_transform(x.to_numpy().reshape(-1, 1))
+    X_train = poly.fit_transform(x_train.to_numpy().reshape(-1, 1))
     poly_reg_model = LinearRegression()
-    poly_reg_model.fit(X, y)
+    poly_reg_model.fit(X_train, y_train)
     
     # Prediction
     x_values_poly = poly.fit_transform(x_values.reshape(-1, 1))
     y_predicted = poly_reg_model.predict(x_values_poly)
     
     # Calcualte RMSE
-    actual_y_predicted = poly_reg_model.predict(X)
-    rmse = np.sqrt(mean_squared_error(y, actual_y_predicted))
-    print("RMSE:", rmse)
+    X_test = poly.transform(x_test.to_numpy().reshape(-1, 1))
+    y_test_predicted = poly_reg_model.predict(X_test)
+    rmse = np.sqrt(mean_squared_error(y_test, y_test_predicted))
+    print("Test RMSE:", rmse)
 
     plt.figure(figsize=(10, 6))
     plt.scatter(x, y, label='Actual Data')

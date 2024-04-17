@@ -18,7 +18,8 @@ def levelSelection(priceDF, year: int, store_id: str, item_id: str):
                 
         price_count = filteredDF['Price Count'].apply(lambda x: x[year]).apply(lambda x: x - 1 if x != 0 else x).sum()
         
-        if price_count >= 100:
+        # We need 100 train data, 80% of all data
+        if price_count >= 125:
             level = key
             break
     
