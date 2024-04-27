@@ -1,7 +1,11 @@
 dataset/
 modelData/
+
+oldPrice.csv
 price.csv
 sales.csv
+demand.csv
+
 credentials.json
 __pycache__/
 
