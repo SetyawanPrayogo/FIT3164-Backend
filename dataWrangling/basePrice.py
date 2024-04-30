@@ -8,11 +8,11 @@ tqdm.pandas()
 __author__ = "Hamid Abrar Mahir (32226136), Setyawan Prayogo (32213816), Yuan She (32678304), Regina Lim (32023863)"
 
 def main():
-    calendar = pd.read_csv("dataset/calendar.csv")
+    calendar = pd.read_csv("../dataset/calendar.csv")
     calendar['date'] = pd.to_datetime(calendar['date'])
     calendar = calendar[calendar['date'] <= '2016-05-22']
     
-    demandDF = pd.read_csv("demand.csv")
+    demandDF = pd.read_csv("../demand.csv")
     demandDF['start_date'] = pd.to_datetime(demandDF['start_date'])
     demandDF['end_date'] = pd.to_datetime(demandDF['end_date'])
     
@@ -21,7 +21,7 @@ def main():
     demandDF['onlyEvent'] = demandDF['onlyEvent'].apply(ast.literal_eval)
     demandDF['onlySNAP'] = demandDF['onlySNAP'].apply(ast.literal_eval)
     
-    sell_prices = pd.read_csv("dataset/sell_prices.csv")
+    sell_prices = pd.read_csv("../dataset/sell_prices.csv")
     sell_prices = clean_sell_prices(sell_prices, calendar.groupby('wm_yr_wk').agg({'date': 'min', 'd': 'first'}).reset_index())
     
     priceDF = sell_prices.copy(deep=True)
@@ -42,7 +42,7 @@ def generateBasePrice(row, sell_prices, demandDF, event: bool, snap: bool):
     
     data = sell_prices[(sell_prices['store_id'] == row['store_id']) & (sell_prices['item_id'] == row['item_id'])]
     productSalesInfo = demandDF[(demandDF['store_id'] == row['store_id']) & (demandDF['item_id'] == row['item_id'])].reset_index()
-    #print(productSalesInfo)
+    print(productSalesInfo)
     
     if event == False and snap == False:
         colName = 'withoutBoth'
@@ -66,10 +66,11 @@ def generateBasePrice(row, sell_prices, demandDF, event: bool, snap: bool):
     for year, price in base_price.items():
         sorted_prices = sorted([p for p in price if p is not None], reverse=True)
         # print(sorted_prices, year)
+        max_price = None
         if len(sorted_prices):
             num_week = []
             for prices in sorted_prices:
-                #print(prices)
+                # print(prices)
                 price_row = productSalesInfo[(productSalesInfo['sell_price'] == prices) & (productSalesInfo['start_date'].dt.year <= year) & 
                                   (productSalesInfo['end_date'].dt.year >= year)].reset_index()
                 # print(price_row)
@@ -85,10 +86,11 @@ def generateBasePrice(row, sell_prices, demandDF, event: bool, snap: bool):
                 if len(sorted_prices) == 1 and not has_non_zero_value(num_week):
                     max_price = 0
                     break
+            if max_price is None:
+                max_price = 0
         else:
             max_price = 0
         base_price[year] = max_price
-    
     return base_price
 
 def has_non_zero_value(arr):
@@ -97,7 +99,7 @@ def has_non_zero_value(arr):
 if __name__ == '__main__':
     priceDF = main()
     
-    priceDF.to_csv("price.csv", index=False)
+    priceDF.to_csv("../price.csv", index=False)
     
     # test = priceDF.iloc[0:10, :].progress_apply(lambda row: generateBasePrice(row, sell_prices, demandDF, False, False), axis=1)
     

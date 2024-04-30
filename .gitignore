@@ -1,9 +1,8 @@
 dataset/
 modelData/
 
-oldPrice.csv
+dataWrangling/newCalendar.csv
 price.csv
-sales.csv
 demand.csv
 
 credentials.json
