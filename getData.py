@@ -21,9 +21,11 @@ def getBase(demandDF, priceDF, year: int, store_id: str, item_id: str, event: bo
 
     basePriceRow = productSalesInfo[(productSalesInfo['sell_price'] == basePrice) & (productSalesInfo['start_date'].dt.year <= year) & 
                                    (productSalesInfo['end_date'].dt.year >= year)].reset_index()
+    # print(basePriceRow)
     # Remove row that has num_week of 0
-    basePriceRow = basePriceRow[basePriceRow.apply(lambda row: row[colName][year]['num_week'] != 0, axis=1)]
+    basePriceRow = basePriceRow[basePriceRow.apply(lambda row: row[colName][year]['num_week'] != 0, axis=1)].reset_index(drop=True)
 
+    # print(basePriceRow)
     if len(basePriceRow) == 1:
         baseDemand = basePriceRow[colName][0][year]['avg_sold_wk']
     else:
@@ -95,10 +97,8 @@ if __name__ == '__main__':
        
     getYearList(priceDF, "CA_1", "FOODS_1_043", True, True)
     
-    getBase(demandDF, priceDF, 2012, "CA_1", "FOODS_1_043", False, False)
+    getBase(demandDF, priceDF, 2011, "CA_1", "FOODS_1_074", True, False)
     
-    # basePrice, baseDemand = getBase(demandDF, priceDF, 2014, "CA_1", "FOODS_1_073", True, True)
-    # getBase(demandDF, priceDF, 2011, "CA_1", "FOODS_1_072", False, True)
 
     
     
