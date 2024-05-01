@@ -22,8 +22,12 @@ def createModel(priceDF, year: int, store_id: str, item_id: str, event: bool, sn
     
     if event == False and eventCount != 0:
         return 'Invalid Data'
+    elif event == True and eventCount == 0:
+        return 'Invalid Data'
     
     if snap == False and snapCount != 0:
+        return 'Invalid Data'
+    elif snap == True and snapCount == 0:
         return 'Invalid Data'
 
     # Fetch and filter data based on event and snap conditions
@@ -215,8 +219,8 @@ if __name__ == '__main__':
     poly, model, rmse, score = createModel(priceDF, year, store_id, item_id, event=False, snap=False, eventCount=0, snapCount=0)
     plt.show()
 
-    discount = 30
-    changeDemand, impact, demand = predictDemand(poly, model, base_demand, discount, 0,0)
+    discount = 10
+    changeDemand, impact, demand = predictDemand(poly, model, base_demand, discount, 0, 0)
     impact
     demand
 
