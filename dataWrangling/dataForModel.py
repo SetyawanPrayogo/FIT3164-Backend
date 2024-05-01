@@ -76,9 +76,9 @@ def generateDemand(row, sales_train):
 
 def groupData(data, trueFalse: bool):
     if trueFalse == True:
-        newData = data.groupby(['state_id', 'store_id', 'cat_id', 'dept_id', 'item_id', 'sell_price', 'eventBool', 'snapBool']).agg({'demand': 'mean'}).reset_index()
+        newData = data.groupby(['state_id', 'store_id', 'cat_id', 'dept_id', 'item_id', 'sell_price', 'eventBool', 'snapBool']).agg({'demand': 'mean', 'totalDay': 'sum'}).reset_index()
     elif trueFalse == False:
-        newData = data.groupby(['state_id', 'store_id', 'cat_id', 'dept_id', 'item_id', 'sell_price', 'eventCount', 'snapCount']).agg({'demand': 'mean'}).reset_index()
+        newData = data.groupby(['state_id', 'store_id', 'cat_id', 'dept_id', 'item_id', 'sell_price', 'eventCount', 'snapCount']).agg({'demand': 'sum', 'totalDay': 'sum'}).reset_index()
         
     return newData
 
@@ -211,10 +211,19 @@ if __name__ == '__main__':
     """
     # for year in range(2011, 2017):
     #     data = pd.read_csv(f"../rawModelData/data_{year}.csv")
+    #     data['start_date'] = pd.to_datetime(data['start_date'])
+    #     data['end_date'] = pd.to_datetime(data['end_date'])
+        
+    #     data['totalDay'] = (data['end_date'] - data['start_date']).dt.days + 1
+
     #     newData = groupData(data, True)
+    #     newData['demand'] = round(newData['demand']/(newData['totalDay']/7),3)
+    #     newData.drop(columns='totalDay')
     #     newData.to_csv(f"../baseModelData/trueFalse/data_{year}.csv", index=False)
         
     #     newData2 = groupData(data, False)
+    #     newData2['demand'] = round(newData2['demand']/(newData2['totalDay']/7),3)
+    #     newData2.drop(columns='totalDay')
     #     newData2.to_csv(f"../baseModelData/data_{year}.csv", index=False)
     
     
@@ -233,9 +242,9 @@ if __name__ == '__main__':
     #     dataTrue.loc[:, ['basePrice', 'baseDemand']] = dataTrue.progress_apply(addBase, args=(demandDF, priceDF, year, True,), axis=1)
     #     dataTrue.to_csv(f"../baseModelData/trueFalse/data_{year}.csv", index=False)
     
-    # """
-    # Add Model Data and Demand Percent
-    # """
+    """
+    Add Model Data and Demand Percent
+    """
     # for year in range(2011, 2017):
     #     data = pd.read_csv(f"../baseModelData/data_{year}.csv")
     #     data = addModelData(data, False)
@@ -250,4 +259,3 @@ if __name__ == '__main__':
         
     #     dataTrue['demandPercent'] = dataTrue.progress_apply(addDemandPercent, axis=1)
     #     dataTrue.to_csv(f"../modelData/trueFalse/data_{year}.csv", index=False)
-    
