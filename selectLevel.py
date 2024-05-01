@@ -1,10 +1,18 @@
 import pandas as pd
 
+from getData import getYearList
+
 __author__ = "Hamid Abrar Mahir (32226136), Setyawan Prayogo (32213816), Yuan She (32678304), Regina Lim (32023863)"
 
-def levelSelection(priceDF, year: int, store_id: str, item_id: str):
+def levelSelection(priceDF, data, year: int, store_id: str, item_id: str, event: bool, snap: bool):
+    
     # Previous year
     year -= 1
+    
+    # Check year is valid first
+    if year not in getYearList(priceDF, store_id, item_id, event, snap):
+        # Improvement: put minimum year that is valid
+        return "Year Invalid"
     
     productInfo = getProductInfo(store_id, item_id)
     
@@ -14,15 +22,15 @@ def levelSelection(priceDF, year: int, store_id: str, item_id: str):
         else: 
             filter_condition =  f"{key} == '{value}'"
 
-        filteredDF = priceDF.query(filter_condition)
-                
-        price_count = filteredDF['Price Count'].apply(lambda x: x[year]).apply(lambda x: x - 1 if x != 0 else x).sum()
+        filteredDF = data.query(filter_condition)
+        # print(key)
+        # print(filteredDF['sell_price'].nunique())
+        print(len(filteredDF))
         
-        # We need 100 train data, 80% of all data
-        if price_count >= 125:
+        if len(filteredDF) >= 500:
             level = key
             break
-    
+        
     return level
 
 def getProductInfo(store_id: str, item_id: str):

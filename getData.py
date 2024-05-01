@@ -44,7 +44,7 @@ def getYearList(priceDF, store_id: str, item_id: str, event: bool, snap: bool):
     colName = getColumnName(event, snap)
     colName = f"basePrice_{colName}"
     
-    productPriceInfo = priceDF[(priceDF['store_id'] == store_id) & (priceDF['item_id'] == item_id)].reset_index()
+    productPriceInfo = priceDF[(priceDF['store_id'] == store_id) & (priceDF['item_id'] == item_id)].reset_index(drop=True)
     data = productPriceInfo[colName].iloc[0]
     
     yearList = [year for year, price in data.items() if price != 0]
@@ -98,8 +98,3 @@ if __name__ == '__main__':
     getYearList(priceDF, "CA_1", "FOODS_1_043", True, True)
     
     getBase(demandDF, priceDF, 2011, "CA_1", "FOODS_1_074", True, False)
-    
-
-    
-    
-    
