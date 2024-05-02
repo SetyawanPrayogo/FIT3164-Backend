@@ -71,18 +71,12 @@ def createModel(priceDF, year: int, store_id: str, item_id: str, event: bool, sn
     y_test_predicted = poly_reg_model.predict(X_test)
     rmse = np.sqrt(mean_squared_error(y_test, y_test_predicted))
     score = poly_reg_model.score(X_test, y_test)
-    print("RMSE:", rmse)
-    print("score:", score)
-    
-    # 95% Confidence Interval
-    y_train_predicted = poly_reg_model.predict(X_train)
-    y_stderr = np.sqrt(np.mean((y_train_predicted - y_train) ** 2))
-    ci = 1.96 * y_stderr
+    # print("RMSE:", rmse)
+    # print("score:", score)
     
     plt.figure(figsize=(10, 6))
     plt.scatter(x['priceDiscount'], y, color='goldenrod',label='Actual Data')
     plt.plot(x_values, y_predicted, color="red", label='Polynomial Regression')
-    plt.fill_between(x_values, y_predicted - ci, y_predicted + ci, color='lightblue', alpha=0.2, label='95% Confidence Interval')
     plt.plot(np.arange(0, 101), np.arange(0, 101), color='green', linestyle='--', label='Price Elasticity = 1')
     plt.title(f"Price Elasticity Analysis for {item_id} in Store {store_id} at {level} Level")
     plt.xlabel('Price Discount (%)')
