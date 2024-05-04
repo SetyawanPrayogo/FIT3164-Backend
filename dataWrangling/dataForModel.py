@@ -258,4 +258,4 @@ if __name__ == '__main__':
     #     print((dataTrue['priceDiscount'] >= 0).all())
         
     #     dataTrue['demandPercent'] = dataTrue.progress_apply(addDemandPercent, axis=1)
-    #     dataTrue.to_csv(f"../modelData/trueFalse/data_{year}.csv", index=False)
+    #     dataTrue.to_csv(f"trueFalse/data_{year}.csv", index=False)
