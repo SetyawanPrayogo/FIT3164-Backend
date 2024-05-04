@@ -2,6 +2,7 @@ dataset/
 modelData/
 
 dataWrangling/newCalendar.csv
+dataWrangling/trueFalse/
 price.csv
 demand.csv
 
