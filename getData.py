@@ -39,7 +39,7 @@ def getBase(demandDF, priceDF, year: int, store_id: str, item_id: str, event: bo
     return basePrice, baseDemand
 
 # Year list for the data
-# If you want to take yearList for prediction just do pop(0) from the result
+# If you want to take yearList for prediction just + 1 on the list
 def getYearList(priceDF, store_id: str, item_id: str, event: bool, snap: bool):
     colName = getColumnName(event, snap)
     colName = f"basePrice_{colName}"

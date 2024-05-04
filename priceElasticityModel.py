@@ -197,7 +197,7 @@ if __name__ == '__main__':
     
     priceDF['basePrice_withoutBoth'] = priceDF['basePrice_withoutBoth'].apply(ast.literal_eval)
     priceDF['basePrice_withBoth'] = priceDF['basePrice_withBoth'].apply(ast.literal_eval)
-    priceDF['basePrice_onlyEventh'] = priceDF['basePrice_onlyEvent'].apply(ast.literal_eval)
+    priceDF['basePrice_onlyEvent'] = priceDF['basePrice_onlyEvent'].apply(ast.literal_eval)
     priceDF['basePrice_onlySNAP'] = priceDF['basePrice_onlySNAP'].apply(ast.literal_eval)
     priceDF['Price Count'] = priceDF['Price Count'].apply(ast.literal_eval)
        
