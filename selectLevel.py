@@ -1,4 +1,7 @@
+import json
 import pandas as pd
+import boto3
+import ast
 
 from getData import getYearList
 
@@ -25,7 +28,7 @@ def levelSelection(priceDF, data, year: int, store_id: str, item_id: str, event:
         filteredDF = data.query(filter_condition)
         # print(key)
         # print(filteredDF['sell_price'].nunique())
-        print(len(filteredDF))
+        # print(len(filteredDF))
         
         if len(filteredDF) >= 500:
             level = key
@@ -42,19 +45,29 @@ def getProductInfo(store_id: str, item_id: str):
 
 
 # if __name__ == '__main__':
-#     priceDF = pd.read_csv("price.csv")
+#     # Get access key
+#     credentials = json.load(open('credentials.json'))
+
+#     access_key = credentials.get('aws_access_key_id')
+#     secret_key = credentials.get('aws_secret_access_key')
+
+#     s3 = boto3.resource(
+#         service_name='s3',
+#         region_name='ap-southeast-2',
+#         aws_access_key_id=access_key,
+#         aws_secret_access_key=secret_key
+#     )
     
-#     priceDF['Base Price'] = priceDF['Base Price'].apply(ast.literal_eval)
+#     priceDF = pd.read_csv(s3.Bucket(name='fit3164-bucket').Object('price.csv').get()['Body'])
+
+#     priceDF['basePrice_withoutBoth'] = priceDF['basePrice_withoutBoth'].apply(ast.literal_eval)
+#     priceDF['basePrice_withBoth'] = priceDF['basePrice_withBoth'].apply(ast.literal_eval)
+#     priceDF['basePrice_onlyEvent'] = priceDF['basePrice_onlyEvent'].apply(ast.literal_eval)
+#     priceDF['basePrice_onlySNAP'] = priceDF['basePrice_onlySNAP'].apply(ast.literal_eval)
 #     priceDF['Price Count'] = priceDF['Price Count'].apply(ast.literal_eval)
     
-#     PRINT item_id
 #     year = 2015
 #     store_id = "CA_1"
 #     item_id = "FOODS_1_010"
-
-#     dept_id
-#     year = 2012
-#     store_id = "CA_1"
-#     item_id = "FOODS_1_001"
     
-#     a = levelSelection(priceDF, year, store_id, item_id)
+#     levelSelection(priceDF, year, store_id, item_id)
