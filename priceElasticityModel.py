@@ -30,8 +30,8 @@ def createModel(priceDF, year: int, store_id: str, item_id: str, event: bool, sn
     elif snap == True and snapCount == 0:
         return 'Invalid Data'
 
-    # Fetch and filter data based on event and snap conditions
-    data = getDataset(year, event, snap)
+    # Fetch and filter data from previous year based on event and snap conditions
+    data = getDataset(year-1, event, snap)
     
     # Choose the level of the model
     level = levelSelection(priceDF, data, year, store_id, item_id, event, snap)
