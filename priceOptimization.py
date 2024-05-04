@@ -3,32 +3,39 @@ import ast
 import numpy as np
 from priceElasticityModel import createModel, getBase, predictDemand
 
-def priceOptimization(base_price, base_demand, poly, model, year, discount_range):
-    # Generate discount values within the specified range
-    discount_values = np.arange(discount_range[0], discount_range[1] + 1, 1)
+__author__ = "Hamid Abrar Mahir (32226136), Setyawan Prayogo (32213816), Yuan She (32678304), Regina Lim (32023863)"
+
+def priceOptimization(base_price, cost_price, target_date, stock_on_hand, poly, model, current_date, discount_range):
     
-    # the optimal price and corresponding demand
-    optimal_price = base_price
-    optimal_demand = base_demand
-    max_revenue = base_price * base_demand
-    
-    # find the optimal price
-    for discount in discount_values:
+    days_until_target = (target_date - current_date).days
+    stock_to_sales_ratio = stock_on_hand / base_demand  
+
+    # Iterate through a range of discount values to find the optimal price
+    for discount in discount_range:
         # the price after applying the discount
         price_after_discount = base_price * (1 - discount / 100)
+        if price_after_discount < cost_price:
+            continue  
         
         # Predict the demand using the polynomial regression model
         demand_predicted = predictDemand(poly, model, discount)
-        
+
         # the revenue for the current price and demand
         revenue = price_after_discount * demand_predicted
-        
+
+        # Adjust revenue based on days until target and stock levels
+        if days_until_target < 10:  
+            revenue *= 0.95  
+
+        if stock_to_sales_ratio > 1.5:  
+            revenue *= 1.1  
+
         # Update the optimal price and demand if the revenue is higher
         if revenue > max_revenue:
             optimal_price = price_after_discount
             optimal_demand = demand_predicted
             max_revenue = revenue
-    
+
     return optimal_price, optimal_demand
 
 if __name__ == '__main__':
