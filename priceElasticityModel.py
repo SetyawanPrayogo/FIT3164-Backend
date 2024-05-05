@@ -207,7 +207,7 @@ if __name__ == '__main__':
     store_id = "TX_1"
     item_id = "HOUSEHOLD_2_467"
     
-    base_price, base_demand = getBase(demandDF, priceDF, year, store_id, item_id, False, False)
+    base_price, base_demand = getBase(demandDF, priceDF, year-1, store_id, item_id, False, False)
     base_price
     base_demand
     
