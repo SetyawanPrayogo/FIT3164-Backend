@@ -74,14 +74,14 @@ def createModel(priceDF, year: int, store_id: str, item_id: str, event: bool, sn
     # print("RMSE:", rmse)
     # print("score:", score)
     
-    plt.figure(figsize=(10, 6))
-    plt.scatter(x['priceDiscount'], y, color='goldenrod',label='Actual Data')
-    plt.plot(x_values, y_predicted, color="red", label='Polynomial Regression')
-    plt.plot(np.arange(0, 101), np.arange(0, 101), color='green', linestyle='--', label='Price Elasticity = 1')
-    plt.title(f"Price Elasticity Analysis for {item_id} in Store {store_id} at {level} Level")
-    plt.xlabel('Price Discount (%)')
-    plt.ylabel('Change in Demand (%)')
-    plt.legend()
+    # plt.figure(figsize=(10, 6))
+    # plt.scatter(x['priceDiscount'], y, color='goldenrod',label='Actual Data')
+    # plt.plot(x_values, y_predicted, color="red", label='Polynomial Regression')
+    # plt.plot(np.arange(0, 101), np.arange(0, 101), color='green', linestyle='--', label='Price Elasticity = 1')
+    # plt.title(f"Price Elasticity Analysis for {item_id} in Store {store_id} at {level} Level")
+    # plt.xlabel('Price Discount (%)')
+    # plt.ylabel('Change in Demand (%)')
+    # plt.legend()
     #* Uncomment the next line if you want to work with backend
     #* Comment the next line if you want to work with frontend
     # plt.show()
@@ -101,10 +101,11 @@ def predictDemand(poly, model, base_demand, discount, eventCount: int, snapCount
         impact = f"Increased by {y_predict[0]}%"
     elif y_predict[0] < 0:
         impact = f"Decreased by {abs(y_predict[0])}%"
-        
-    demand = f"{round(base_demand + base_demand * y_predict[0]/100, 2)} Items sold per week"
     
-    return y_predict[0], impact, demand
+    demand = round(base_demand + base_demand * y_predict[0]/100, 2)
+    demandText = f"{demand} Items sold per week"
+    
+    return y_predict[0], impact, demand, demandText
 
 def priceElasticity(discount, demandChange):
     if discount == 0:
@@ -215,7 +216,7 @@ if __name__ == '__main__':
     plt.show()
 
     discount = 10
-    changeDemand, impact, demand = predictDemand(poly, model, base_demand, discount, 0, 0)
+    changeDemand, impact, demand, demandText = predictDemand(poly, model, base_demand, discount, 3, 0)
     impact
     demand
 
