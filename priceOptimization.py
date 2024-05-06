@@ -92,7 +92,7 @@ def calculateRevenue(demandDF, priceDF, year: int, store_id: str, item_id: str, 
         if rounded_demand <= stockOnHand and rounded_demand > 0:
             revenueList.append((discount, sell_price, rounded_demand, revenue, profitLoss))    
 
-    return revenueList, stockCost
+    return costPrice, stockOnHand, revenueList, stockCost
 
 def getDummyData(year: int):
     filePath = f"dummyData/data_{year}.csv"
@@ -161,9 +161,7 @@ if __name__ == '__main__':
     store_id = "TX_1"
     item_id = "FOODS_1_040"
     
-    revenueList, stockCost = calculateRevenue(demandDF, priceDF, year, store_id, item_id, event=False, snap=True, eventCount=0, snapCount=3)
+    costPrice, stockOnHand, revenueList, stockCost = calculateRevenue(demandDF, priceDF, year, store_id, item_id, event=False, snap=True, eventCount=0, snapCount=3)
     
     getOptimizedPrice(revenueList, stockCost)
     discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay = getOptimizedPrice(revenueList, stockCost)
-    
-    revenueList, stockCost = calculateRevenue(demandDF, priceDF, 2012, 'CA_1', 'FOODS_1_012', event=False, snap=True, eventCount=0, snapCount=4)
