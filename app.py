@@ -3,10 +3,14 @@ import boto3
 import json
 import pandas as pd
 import ast
-import priceElasticityModel
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask import request
+
+import getData
+import priceElasticityModel
+import priceOptimization
 
 app = Flask(__name__)
 CORS(app)
@@ -37,15 +41,23 @@ s3 = boto3.resource(
     aws_secret_access_key=secret_key
 )
 
-salesDF= pd.read_csv(s3.Bucket(name='fit3164-bucket').Object('sales.csv').get()['Body'])
+demandDF = pd.read_csv(s3.Bucket(name='fit3164-bucket').Object('demand.csv').get()['Body'])
+    
+demandDF['withoutBoth'] = demandDF['withoutBoth'].apply(ast.literal_eval)
+demandDF['withBoth'] = demandDF['withBoth'].apply(ast.literal_eval)
+demandDF['onlyEvent'] = demandDF['onlyEvent'].apply(ast.literal_eval)
+demandDF['onlySNAP'] = demandDF['onlySNAP'].apply(ast.literal_eval)
+
+demandDF['start_date'] = pd.to_datetime(demandDF['start_date'])
+demandDF['end_date'] = pd.to_datetime(demandDF['end_date'])
+
 priceDF = pd.read_csv(s3.Bucket(name='fit3164-bucket').Object('price.csv').get()['Body'])
 
-salesDF['Summary'] = salesDF['Summary'].apply(ast.literal_eval)
-priceDF['Base Price'] = priceDF['Base Price'].apply(ast.literal_eval)
+priceDF['basePrice_withoutBoth'] = priceDF['basePrice_withoutBoth'].apply(ast.literal_eval)
+priceDF['basePrice_withBoth'] = priceDF['basePrice_withBoth'].apply(ast.literal_eval)
+priceDF['basePrice_onlyEvent'] = priceDF['basePrice_onlyEvent'].apply(ast.literal_eval)
+priceDF['basePrice_onlySNAP'] = priceDF['basePrice_onlySNAP'].apply(ast.literal_eval)
 priceDF['Price Count'] = priceDF['Price Count'].apply(ast.literal_eval)
-
-salesDF['start_date'] = pd.to_datetime(salesDF['start_date'])
-salesDF['end_date'] = pd.to_datetime(salesDF['end_date'])
 
 # get all items from a store
 # run this in the browser: http://127.0.0.1:5000/get-items/st1Cal . This will return all the items in store 1 in California. Make sure the application is running using flask run
@@ -55,55 +67,93 @@ def getItems(storeId):
     print(storeId)
 
     # only show the unique items in the store
-    items = salesDF[salesDF['store_id'] == storeId]['item_id'].unique()
+    items = demandDF[demandDF['store_id'] == storeId]['item_id'].unique()
     return jsonify(items.tolist())  # Convert items to a list
-
 
 # Input argument, storeId and itemId.
 # Outputs all the years that item was sold in that store
-# run this in the browser: http://127.0.0.1:5000/get-year?storeId=st1Cal&itemId=FOODS_1_001
+# run this in the browser: http://127.0.0.1:5000/get-year?storeId=st1Cal&itemId=FOODS_1_001&event=True&snap=False
 @app.route('/get-year', methods=['GET'])
 def get_year():
     store_id = request.args.get('storeId')
     item_id = request.args.get('itemId')
     storeId = stores.get(store_id, "Could not find store")
-    productPriceInfo = priceDF[(priceDF['store_id'] == storeId) & (priceDF['item_id'] == item_id)].reset_index()
-    data = productPriceInfo['Price Count'].iloc[0]
-    yearList =  [year for year, count in data.items() if count != 0]
-    yearList.pop(0)
+    
+    eventBool = request.args.get('event')
+    snapBool = request.args.get('snap')
+    
+    event = True if eventBool.lower() == 'true' else False
+    snap = True if snapBool.lower() == 'true' else False
+    
+    yearList = getData.getYearList(priceDF, storeId, item_id, event, snap)
+    yearList = [year + 1 for year in yearList]
+    
     return jsonify(yearList)
 
 
 # Comment this code if you want to work on the backend only. This code will only work with the frontend.
-# http://127.0.0.1:5000/get-price-elasticity?storeId=st1Cal&itemId=FOODS_1_001&yearId=2015
+# http://127.0.0.1:5000/get-price-elasticity?storeId=st1Cal&itemId=FOODS_1_001&yearId=2015&event=True&snap=False&eventCount=1&snapCount=0&disId=10
 @app.route('/get-price-elasticity', methods=['GET'])
 def main():   
     store_id = request.args.get('storeId')
     item_id = request.args.get('itemId')
-    year_id = request.args.get('yearId')
-    dis_Id = request.args.get('disId')
+    year = int(request.args.get('yearId'))
+    
+    eventBool = request.args.get('event')
+    snapBool = request.args.get('snap')
+    
+    event = True if eventBool.lower() == 'true' else False
+    snap = True if snapBool.lower() == 'true' else False
+    
+    eventCount = int(request.args.get('eventCount'))
+    snapCount = int(request.args.get('snapCount'))
+    
+    discount = int(request.args.get('disId'))
 
     storeId = stores.get(store_id, "Could not find store")
 
-
-    year = int(year_id)
-    store_id = storeId
-    item_id = item_id
-    dis_Id = int(dis_Id)
+    print(store_id, item_id, year, event, snap, eventCount, snapCount, discount)
     print("#############################################")
     
     # To show in the Front-end
-    base_price, base_demand = priceElasticityModel.getBase(salesDF, priceDF, year, store_id, item_id)
+    base_price, base_demand = getData.getBase(demandDF, priceDF, year-1, storeId, item_id, event, snap)
     
     # Not gonna show on UI
-    poly, model, rmse = priceElasticityModel.createModel(salesDF, priceDF, year, store_id, item_id, deg = 3)
+    poly, model, rmse, score = priceElasticityModel.createModel(priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
+    
+    rmse = round(rmse, 2)
 
     # 60 is the user input (discount)
-    # y_predict is the change on demand (percent)
-    impact, demand = priceElasticityModel.predictDemand(poly, model, base_demand, dis_Id)
+    # impact and demandText is for UI
+    changeDemand, impact, demand, demandText = priceElasticityModel.predictDemand(poly, model, base_demand, discount, eventCount, snapCount)
     
-    print("Printing the results", base_price, base_demand, rmse, impact, demand)
-    return {'Base Price': base_price, 'Base Demand': base_demand, 'RMSE': rmse, 'Impact on Sales': impact, 'Predicted Demand': demand}
+    # Not gonna show on UI
+    costPrice, stockOnHand, revenueList, stockCost = priceOptimization.calculateRevenue(demandDF, priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
+    
+    discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay = priceOptimization.getOptimizedPrice(revenueList, stockCost)
+
+    # For price elasticity section
+    print("Printing the results (Price Elasticity)", base_price, base_demand, rmse, score, impact, demandText)
+    
+    # For price optimization
+    print("Printing the results (Price Optimization)", costPrice, stockOnHand, discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay)
+    
+    return {
+        'Base Price': float(base_price),
+        'Base Demand': float(base_demand),
+        'RMSE': float(rmse),
+        'Score': float(score),
+        'Impact on Sales': str(impact),
+        'Predicted Demand': str(demandText),
+        'Cost Price/Item': float(costPrice),
+        'Stock on Hand': int(stockOnHand),
+        'Price Discount': str(int(discount)) + ' %',
+        'Optimized Price': float(optimizedPrice),
+        'Total item(s) sold': str(int(totalSold)) + ' Items',
+        'Total Revenue': float(totalRevenue),
+        'PROFIT/LOSS': str(profitLoss),
+        'Gain profit in (days)': int(totalDay)
+    }
 
 
 
