@@ -216,7 +216,7 @@ if __name__ == '__main__':
     plt.show()
 
     discount = 10
-    changeDemand, impact, demand, demandText = predictDemand(poly, model, base_demand, discount, 3, 0)
+    changeDemand, impact, demand, demandText = predictDemand(poly, model, base_demand, discount, 0, 0)
     impact
     demand
 

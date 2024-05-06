@@ -32,7 +32,7 @@ def generateDummyData(data, dataModel):
     newDF['baseDemand'] = np.ceil(newDF['baseDemand'])
     
     np.random.seed(9999)
-    newDF['stockOnHand'] = np.random.randint(newDF['baseDemand']*1.1, newDF['max_stock'] + 1)
+    newDF['stockOnHand'] = np.random.randint(np.ceil(newDF['baseDemand']*1.1), newDF['max_stock'] + 1)
     
     newDF = newDF[['state_id', 'store_id', 'cat_id', 'dept_id', 'item_id', 'costPrice', 'stockOnHand']]
     
@@ -45,4 +45,3 @@ if __name__ == '__main__':
         
         newData = generateDummyData(data, dataModel)
         newData.to_csv(f"../dummyData/data_{year}.csv", index=False)
-
