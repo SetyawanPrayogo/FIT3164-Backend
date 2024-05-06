@@ -1,6 +1,7 @@
 dataset/
 dummyData/
 modelData/
+accuracyTestData/
 
 dataWrangling/newCalendar.csv
 dataWrangling/trueFalse/

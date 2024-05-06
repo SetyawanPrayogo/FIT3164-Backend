@@ -18,27 +18,34 @@ def testModel(priceDF, data, year: int):
     
     for store_id in data['store_id'].unique():
         storeData = data[data['store_id'] == store_id]
-        uniqueId = len(data['item_id'].unique())
+        itemData = storeData['item_id'].unique()
+        uniqueId = len(itemData)
         randomIndex = np.random.randint(uniqueId, size=4)
-        item_id = data['item_id'][randomIndex]
-    for data_id in data['id'].unique():
-        store_id = data_id[:4]
-        item_id = data_id[5:]
-        for event in [True, False]:
-            for snap in [True, False]:
-                # print(year, store_id, item_id, event, snap)
-                result = createModel(priceDF, year+1, store_id, item_id, event, snap)
-                # print(result)
-                if result == 'Year Invalid':
-                    break
-                else:
-                    results.append({'store_id': store_id, 'item_id': item_id, 'event': event, 'snap': snap, 'RMSE': result[2], 'score': result[3]})
+        for index in randomIndex:
+            item_id = itemData[index]
+            for event in [True, False]:
+                for snap in [True, False]:
+                    print(f"Processing: Year {year}, Store {store_id}, Item {item_id}, Event {event}, Snap {snap}")
+                    if event == True:
+                        eventCount = 1
+                    else:
+                        eventCount = 0
+                        
+                    if snap == True:
+                        snapCount = 1
+                    else:
+                        snapCount = 0
+                        
+                    result = createModel(priceDF, year+1, store_id, item_id, event, snap, eventCount, snapCount)
+                    # print(result)
+                    if result == 'Year Invalid':
+                        break
+                    else:
+                        results.append({'store_id': store_id, 'item_id': item_id, 'event': event, 'snap': snap, 'RMSE': result[2], 'score': result[3]})
     
     results = pd.DataFrame(results)
     
     return results
-        
-    
 
 if __name__ == '__main__':
      # Get access key
@@ -62,7 +69,9 @@ if __name__ == '__main__':
     priceDF['basePrice_onlySNAP'] = priceDF['basePrice_onlySNAP'].apply(ast.literal_eval)
     priceDF['Price Count'] = priceDF['Price Count'].apply(ast.literal_eval)
     
-    filePath = f"modelData/data_2011.csv"
-    data = pd.read_csv(s3.Bucket(name='fit3164-bucket').Object(filePath).get()['Body'])
-    
-    dataTest = testModel(priceDF, data, 2011)
+    for year in range(2011, 2017):
+        filePath = f"modelData/data_{year}.csv"
+        data = pd.read_csv(s3.Bucket(name='fit3164-bucket').Object(filePath).get()['Body'])
+        
+        testData = testModel(priceDF, data, year)
+        testData.to_csv(f"accuracyTestData/data_{year}.csv", index=False)
