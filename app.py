@@ -145,6 +145,8 @@ def main():
     # For price optimization
     print("Printing the results (Price Optimization)", costPrice, stockOnHand, discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay)
     
+    # print(x_priceDiscount, y_actual, x_values, y_predicted)
+    
     return {
         # Model
         'Base Price': float(base_price),
@@ -170,11 +172,11 @@ def main():
         
         # Graph
         # Scatter
-        'x_actual': x_priceDiscount,
-        'y_actual': y_actual,
+        'x_actual': x_priceDiscount.tolist(),
+        'y_actual': y_actual.tolist(),
         # Line
-        'x_values': x_values,
-        'y_predicted': y_predicted
+        'x_values': x_values.tolist(),
+        'y_predicted': y_predicted.tolist()
     }
 
 
