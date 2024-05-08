@@ -86,7 +86,7 @@ def createModel(priceDF, year: int, store_id: str, item_id: str, event: bool, sn
     #* Comment the next line if you want to work with frontend
     # plt.show()
             
-    return poly, poly_reg_model, rmse, score
+    return poly, poly_reg_model, rmse, score, x['priceDiscount'], y, x_values, y_predicted
 
 def predictDemand(poly, model, base_demand, discount, eventCount: int, snapCount: int):
     predictionData = pd.DataFrame({'priceDiscount': discount, 'eventCount': eventCount, 'snapCount': snapCount}, index=[0])
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     base_price
     base_demand
     
-    poly, model, rmse, score = createModel(priceDF, year, store_id, item_id, event=False, snap=False, eventCount=0, snapCount=0)
+    poly, model, rmse, score, x_priceDiscount, y_actual, x_values, y_predicted= createModel(priceDF, year, store_id, item_id, event=False, snap=False, eventCount=0, snapCount=0)
     plt.show()
 
     discount = 10

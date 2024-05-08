@@ -105,8 +105,15 @@ def main():
     event = True if eventBool.lower() == 'true' else False
     snap = True if snapBool.lower() == 'true' else False
     
-    eventCount = int(request.args.get('eventCount'))
-    snapCount = int(request.args.get('snapCount'))
+    if event:
+        eventCount = int(request.args.get('eventCount'))
+    else:
+        eventCount = 0
+        
+    if snap:
+        snapCount = int(request.args.get('snapCount'))
+    else:
+        snapCount = 0
     
     discount = int(request.args.get('disId'))
 
@@ -119,7 +126,7 @@ def main():
     base_price, base_demand = getData.getBase(demandDF, priceDF, year-1, storeId, item_id, event, snap)
     
     # Not gonna show on UI
-    poly, model, rmse, score = priceElasticityModel.createModel(priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
+    poly, model, rmse, score, x_priceDiscount, y_actual, x_values, y_predicted = priceElasticityModel.createModel(priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
     
     rmse = round(rmse, 2)
 
@@ -139,12 +146,19 @@ def main():
     print("Printing the results (Price Optimization)", costPrice, stockOnHand, discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay)
     
     return {
+        # Model
         'Base Price': float(base_price),
         'Base Demand': float(base_demand),
+        # RMSE (Root Mean Square Error) is a statistical measure used to quantify the average difference between observed values and predicted values
         'RMSE': float(rmse),
+        # Measurement of the proportion of the variance in the dependent variable (target) that is predictable from the independent variables (features)
         'Score': float(score),
+        
+        # Discount
         'Impact on Sales': str(impact),
         'Predicted Demand': str(demandText),
+        
+        # Price Optimization
         'Cost Price/Item': float(costPrice),
         'Stock on Hand': int(stockOnHand),
         'Price Discount': str(int(discount)) + ' %',
@@ -152,7 +166,15 @@ def main():
         'Total item(s) sold': str(int(totalSold)) + ' Items',
         'Total Revenue': float(totalRevenue),
         'PROFIT/LOSS': str(profitLoss),
-        'Gain profit in (days)': int(totalDay)
+        'Gain profit in (days)': int(totalDay),
+        
+        # Graph
+        # Scatter
+        'x_actual': x_priceDiscount,
+        'y_actual': y_actual,
+        # Line
+        'x_values': x_values,
+        'y_predicted': y_predicted
     }
 
 

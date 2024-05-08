@@ -60,7 +60,7 @@ class TestPriceElasticityModel(unittest.TestCase):
         
         # Without Event and SNAP
         result_6 = createModel(priceDF, 2012, 'CA_1', 'FOODS_1_001', False, False, eventCount=0, snapCount=0)
-        self.assertEqual(len(result_6), 4)
+        self.assertEqual(len(result_6), 8)
         
         _, base_demand = getBase(demandDF, priceDF, 2011, 'CA_1', 'FOODS_1_001', False, False)
         
@@ -75,7 +75,7 @@ class TestPriceElasticityModel(unittest.TestCase):
         
         # With only event
         result_7 = createModel(priceDF, 2012, 'CA_1', 'FOODS_1_001', True, False, eventCount=1, snapCount=0)
-        self.assertEqual(len(result_7), 4)
+        self.assertEqual(len(result_7), 8)
         
         _, base_demand = getBase(demandDF, priceDF, 2011, 'CA_1', 'FOODS_1_001', True, False)
         
@@ -91,7 +91,7 @@ class TestPriceElasticityModel(unittest.TestCase):
         
         # With only SNAP
         result_8 = createModel(priceDF, 2012, 'CA_1', 'FOODS_1_001', False, True, eventCount=0, snapCount=1)
-        self.assertEqual(len(result_8), 4)
+        self.assertEqual(len(result_8), 8)
         
         _, base_demand = getBase(demandDF, priceDF, 2011, 'CA_1', 'FOODS_1_001', False, True)
         
@@ -107,7 +107,7 @@ class TestPriceElasticityModel(unittest.TestCase):
         
         # With both Event and SNAP
         result_9 = createModel(priceDF, 2012, 'CA_1', 'FOODS_1_001', True, True, eventCount=1, snapCount=1)
-        self.assertEqual(len(result_9), 4)
+        self.assertEqual(len(result_9), 8)
         
         _, base_demand = getBase(demandDF, priceDF, 2011, 'CA_1', 'FOODS_1_001', True, True)
         
@@ -141,9 +141,6 @@ class TestPriceElasticityModel(unittest.TestCase):
         elasticity_5, interpretation_5 = priceElasticity(5, 0)
         self.assertEqual(elasticity_5, 0)
         self.assertEqual(interpretation_5, "Perfectly inelastic")
-        
-        
-        
     
     def test_getDataset_and_filterData(self):
         data_1 = getDataset(2011, True, False)

@@ -57,7 +57,7 @@ def calculateRevenue(demandDF, priceDF, year: int, store_id: str, item_id: str, 
     elif snap == True and snapCount == 0:
         return 'Invalid Data'
     
-    poly, model, rmse, score = createModel(priceDF, year, store_id, item_id, event, snap, eventCount, snapCount)
+    poly, model, _, _, _, _, _, _ = createModel(priceDF, year, store_id, item_id, event, snap, eventCount, snapCount)
     
     base_price, base_demand = getBase(demandDF, priceDF, year-1, store_id, item_id, event, snap)
     
