@@ -71,7 +71,7 @@ def calculateRevenue(demandDF, priceDF, year: int, store_id: str, item_id: str, 
     
     stockCost = stockOnHand * costPrice
     
-    print(base_price, base_demand, costPrice, stockOnHand, stockCost)
+    # print(base_price, base_demand, costPrice, stockOnHand, stockCost)
     
     revenueList = []
     discount_range = list(range(1, 100))
