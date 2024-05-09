@@ -112,17 +112,19 @@ def priceElasticity(discount, demandChange):
         elasticity = float('inf')
     else:
         elasticity = round(demandChange/discount, 2)
+    # print("elasticity", elasticity)
         
     if elasticity == float('inf'):
         interpretation = "Perfectly elastic"
+    elif elasticity == 0:
+        interpretation =  "Perfectly inelastic"
     elif elasticity > 1:
         interpretation =  "Elastic"
     elif elasticity == 1:
         interpretation =  "Unitary elastic"
-    elif elasticity < 1 and elasticity > 0:
+    elif elasticity < 1:
         interpretation =  "Inelastic"
-    elif elasticity == 0:
-        interpretation =  "Perfectly inelastic"
+
     
     return elasticity, interpretation
 

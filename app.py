@@ -134,6 +134,8 @@ def main():
     # impact and demandText is for UI
     changeDemand, impact, demand, demandText = priceElasticityModel.predictDemand(poly, model, base_demand, discount, eventCount, snapCount)
     
+    elasticity, interpretation = priceElasticityModel.priceElasticity(discount, changeDemand)
+    
     # Not gonna show on UI
     costPrice, stockOnHand, revenueList, stockCost = priceOptimization.calculateRevenue(demandDF, priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
     
@@ -159,6 +161,8 @@ def main():
         # Discount
         'Impact on Sales': str(impact),
         'Predicted Demand': str(demandText),
+        'Elasticity Score': float(elasticity),
+        'Elasticity Interpretation': str(interpretation),
         
         # Price Optimization
         'Cost Price/Item': float(costPrice),
