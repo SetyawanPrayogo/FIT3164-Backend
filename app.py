@@ -183,7 +183,44 @@ def main():
     # Not gonna show on UI
     costPrice, stockOnHand, revenueList, stockCost = priceOptimization.calculateRevenue(demandDF, priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
     
-    discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay = priceOptimization.getOptimizedPrice(revenueList, stockCost)   
+    if priceOptimization.getOptimizedPrice(revenueList, stockCost) == 'Empty List':
+        return {
+            # Model
+            'Base Price': float(base_price),
+            'Base Demand': float(base_demand),
+            # RMSE (Root Mean Square Error) is a statistical measure used to quantify the average difference between observed values and predicted values
+            'RMSE': float(rmse),
+            # Measurement of the proportion of the variance in the dependent variable (target) that is predictable from the independent variables (features)
+            'Score': float(score),
+            
+            # # Discount
+            # 'Impact on Sales': str(impact),
+            # 'Predicted Demand': str(demandText),
+            # 'Elasticity Score': float(elasticity),
+            # 'Elasticity Interpretation': str(interpretation),
+            
+            # Price Optimization
+            'Cost Price/Item': float(costPrice),
+            'Stock on Hand': int(stockOnHand),
+            'Price Discount': 'Cant be calculated',
+            'Optimized Price': 'Cant be calculated',
+            'Total item(s) sold': 'Cant be calculated',
+            'Total Revenue': 'Cant be calculated',
+            'PROFIT/LOSS': 'Cant be calculated',
+            'Gain profit in (days)': 'Cant be calculated',
+            
+            # Graph
+            # Scatter
+            'x_actual': x_priceDiscount.tolist(),
+            'y_actual': y_actual.tolist(),
+            # Line
+            'x_values': x_values.tolist(),
+            'y_predicted': y_predicted.tolist()
+        }
+    else:
+        discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay = priceOptimization.getOptimizedPrice(revenueList, stockCost)  
+    
+    
 
     # For price elasticity section
     print("Printing the results (Price Elasticity)", base_price, base_demand, rmse, score)
