@@ -90,7 +90,51 @@ def get_year():
     
     return jsonify(yearList)
 
+# http://127.0.0.1:5000/get-price-discount?storeId=st1Cal&itemId=FOODS_1_001&yearId=2015&event=True&snap=False&eventCount=1&snapCount=0&disId=10
+@app.route('/get-price-discount', methods=['GET'])
+def get_discount():
+    store_id = request.args.get('storeId')
+    item_id = request.args.get('itemId')
+    year = int(request.args.get('yearId'))
+    
+    eventBool = request.args.get('event')
+    snapBool = request.args.get('snap')
+    
+    event = True if eventBool.lower() == 'true' else False
+    snap = True if snapBool.lower() == 'true' else False
+    
+    if event:
+        eventCount = int(request.args.get('eventCount'))
+    else:
+        eventCount = 0
+        
+    if snap:
+        snapCount = int(request.args.get('snapCount'))
+    else:
+        snapCount = 0
+        
+    discount = int(request.args.get('disId'))
 
+    storeId = stores.get(store_id, "Could not find store")
+    
+    base_price, base_demand = getData.getBase(demandDF, priceDF, year-1, storeId, item_id, event, snap)
+    
+    poly, model, rmse, score, x_priceDiscount, y_actual, x_values, y_predicted = priceElasticityModel.createModel(priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
+    
+    # 60 is the user input (discount)
+    # impact and demandText is for UI
+    changeDemand, impact, demand, demandText = priceElasticityModel.predictDemand(poly, model, base_demand, discount, eventCount, snapCount)
+    
+    elasticity, interpretation = priceElasticityModel.priceElasticity(discount, changeDemand)
+    
+    return {
+        # Discount
+        'Impact on Sales': str(impact),
+        'Predicted Demand': str(demandText),
+        'Elasticity Score': float(elasticity),
+        'Elasticity Interpretation': str(interpretation)
+    }
+    
 # Comment this code if you want to work on the backend only. This code will only work with the frontend.
 # http://127.0.0.1:5000/get-price-elasticity?storeId=st1Cal&itemId=FOODS_1_001&yearId=2015&event=True&snap=False&eventCount=1&snapCount=0&disId=10
 @app.route('/get-price-elasticity', methods=['GET'])
@@ -132,17 +176,17 @@ def main():
 
     # 60 is the user input (discount)
     # impact and demandText is for UI
-    changeDemand, impact, demand, demandText = priceElasticityModel.predictDemand(poly, model, base_demand, discount, eventCount, snapCount)
+    # changeDemand, impact, demand, demandText = priceElasticityModel.predictDemand(poly, model, base_demand, discount, eventCount, snapCount)
     
-    elasticity, interpretation = priceElasticityModel.priceElasticity(discount, changeDemand)
+    # elasticity, interpretation = priceElasticityModel.priceElasticity(discount, changeDemand)
     
     # Not gonna show on UI
     costPrice, stockOnHand, revenueList, stockCost = priceOptimization.calculateRevenue(demandDF, priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
     
-    discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay = priceOptimization.getOptimizedPrice(revenueList, stockCost)
+    discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay = priceOptimization.getOptimizedPrice(revenueList, stockCost)   
 
     # For price elasticity section
-    print("Printing the results (Price Elasticity)", base_price, base_demand, rmse, score, impact, demandText)
+    print("Printing the results (Price Elasticity)", base_price, base_demand, rmse, score)
     
     # For price optimization
     print("Printing the results (Price Optimization)", costPrice, stockOnHand, discount, optimizedPrice, totalSold, totalRevenue, profitLoss, totalDay)
@@ -158,11 +202,11 @@ def main():
         # Measurement of the proportion of the variance in the dependent variable (target) that is predictable from the independent variables (features)
         'Score': float(score),
         
-        # Discount
-        'Impact on Sales': str(impact),
-        'Predicted Demand': str(demandText),
-        'Elasticity Score': float(elasticity),
-        'Elasticity Interpretation': str(interpretation),
+        # # Discount
+        # 'Impact on Sales': str(impact),
+        # 'Predicted Demand': str(demandText),
+        # 'Elasticity Score': float(elasticity),
+        # 'Elasticity Interpretation': str(interpretation),
         
         # Price Optimization
         'Cost Price/Item': float(costPrice),
