@@ -113,7 +113,7 @@ def get_discount():
     else:
         snapCount = 0
         
-    discount = int(request.args.get('disId'))
+    discount = float(request.args.get('disId'))
 
     storeId = stores.get(store_id, "Could not find store")
     
@@ -159,7 +159,7 @@ def main():
     else:
         snapCount = 0
     
-    discount = int(request.args.get('disId'))
+    discount = float(request.args.get('disId'))
 
     storeId = stores.get(store_id, "Could not find store")
 
