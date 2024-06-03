@@ -93,6 +93,7 @@ def get_year():
 # http://127.0.0.1:5000/get-price-discount?storeId=st1Cal&itemId=FOODS_1_001&yearId=2015&event=True&snap=False&eventCount=1&snapCount=0&disId=10
 @app.route('/get-price-discount', methods=['GET'])
 def get_discount():
+    # Getting user input
     store_id = request.args.get('storeId')
     item_id = request.args.get('itemId')
     year = int(request.args.get('yearId'))
@@ -100,14 +101,17 @@ def get_discount():
     eventBool = request.args.get('event')
     snapBool = request.args.get('snap')
     
+    # Assign boolean value
     event = True if eventBool.lower() == 'true' else False
     snap = True if snapBool.lower() == 'true' else False
     
+    # Event value
     if event:
         eventCount = int(request.args.get('eventCount'))
     else:
         eventCount = 0
-        
+    
+    # SNAP value
     if snap:
         snapCount = int(request.args.get('snapCount'))
     else:
@@ -117,14 +121,17 @@ def get_discount():
 
     storeId = stores.get(store_id, "Could not find store")
     
+    # Getting base price and base demand
     base_price, base_demand = getData.getBase(demandDF, priceDF, year-1, storeId, item_id, event, snap)
     
+    # Create model
     poly, model, rmse, score, x_priceDiscount, y_actual, x_values, y_predicted = priceElasticityModel.createModel(priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
-    
-    # 60 is the user input (discount)
+   
+    # Predicting demand
     # impact and demandText is for UI
     changeDemand, impact, demand, demandText = priceElasticityModel.predictDemand(poly, model, base_demand, discount, eventCount, snapCount)
     
+    # Elasticity score and interpretation
     elasticity, interpretation = priceElasticityModel.priceElasticity(discount, changeDemand)
     
     return {
@@ -139,6 +146,7 @@ def get_discount():
 # http://127.0.0.1:5000/get-price-elasticity?storeId=st1Cal&itemId=FOODS_1_001&yearId=2015&event=True&snap=False&eventCount=1&snapCount=0&disId=10
 @app.route('/get-price-elasticity', methods=['GET'])
 def main():   
+    # Getting user input
     store_id = request.args.get('storeId')
     item_id = request.args.get('itemId')
     year = int(request.args.get('yearId'))
@@ -146,14 +154,17 @@ def main():
     eventBool = request.args.get('event')
     snapBool = request.args.get('snap')
     
+    # Assign boolean value
     event = True if eventBool.lower() == 'true' else False
     snap = True if snapBool.lower() == 'true' else False
     
+    # Event value
     if event:
         eventCount = int(request.args.get('eventCount'))
     else:
         eventCount = 0
-        
+    
+    # SNAP value        
     if snap:
         snapCount = int(request.args.get('snapCount'))
     else:
@@ -170,19 +181,16 @@ def main():
     base_price, base_demand = getData.getBase(demandDF, priceDF, year-1, storeId, item_id, event, snap)
     
     # Not gonna show on UI
+    # Creating price elasticity model
     poly, model, rmse, score, x_priceDiscount, y_actual, x_values, y_predicted = priceElasticityModel.createModel(priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
     
     rmse = round(rmse, 2)
-
-    # 60 is the user input (discount)
-    # impact and demandText is for UI
-    # changeDemand, impact, demand, demandText = priceElasticityModel.predictDemand(poly, model, base_demand, discount, eventCount, snapCount)
-    
-    # elasticity, interpretation = priceElasticityModel.priceElasticity(discount, changeDemand)
     
     # Not gonna show on UI
+    # Pricing Optimization
     costPrice, stockOnHand, revenueList, stockCost = priceOptimization.calculateRevenue(demandDF, priceDF, year, storeId, item_id, event, snap, eventCount, snapCount)
     
+    # Checking if we can count optimal price
     if priceOptimization.getOptimizedPrice(revenueList, stockCost) == 'Empty List':
         return {
             # Model
@@ -192,12 +200,6 @@ def main():
             'RMSE': float(rmse),
             # Measurement of the proportion of the variance in the dependent variable (target) that is predictable from the independent variables (features)
             'Score': float(score),
-            
-            # # Discount
-            # 'Impact on Sales': str(impact),
-            # 'Predicted Demand': str(demandText),
-            # 'Elasticity Score': float(elasticity),
-            # 'Elasticity Interpretation': str(interpretation),
             
             # Price Optimization
             'Cost Price/Item': float(costPrice),
@@ -238,12 +240,6 @@ def main():
         'RMSE': float(rmse),
         # Measurement of the proportion of the variance in the dependent variable (target) that is predictable from the independent variables (features)
         'Score': float(score),
-        
-        # # Discount
-        # 'Impact on Sales': str(impact),
-        # 'Predicted Demand': str(demandText),
-        # 'Elasticity Score': float(elasticity),
-        # 'Elasticity Interpretation': str(interpretation),
         
         # Price Optimization
         'Cost Price/Item': float(costPrice),
